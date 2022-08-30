@@ -1,0 +1,62 @@
+version: '3'
+services:
+  nginx:
+    build:
+      context: ./nginx
+      args:
+        NGINX_GID: '${NGINX_GID}'
+        NGINX_UID: '${NGINX_UID}'
+    container_name: nginx
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/site-enabled:/etc/nginx/site-enabled
+      - ./www:/wwwdata/www
+  php8.1-fpm:
+    image: lz8878/php:8.1-fpm
+    build:
+      context: ./php/8.1/fpm
+      args:
+        PHP_FPM_GID: '${PHP_FPM_GID}'
+        PHP_FPM_UID: '${PHP_FPM_UID}'
+    container_name: php8.1-fpm
+    restart: always
+    volumes:
+      - ./www:/wwwdata/www
+  php8.1-worker:
+    image: lz8878/php:8.1-worker
+    build:
+      context: ./php/8.1/worker
+      args:
+        PHP_WORKER_GID: '${PHP_WORKER_GID}'
+        PHP_WORKER_UID: '${PHP_WORKER_UID}'
+    container_name: php8.1-worker
+    restart: always
+    volumes:
+      - ./php/8.1/worker/supervisord.d:/etc/supervisor/conf.d
+      - ./www:/wwwdata/www
+  mysql:
+    image: mysql/mysql-server:8.0
+    container_name: mysql
+    restart: always
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+  redis:
+    image: redis:6.2-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./data/redis:/data
+networks:
+  default:
+    external: true
+    name: www
