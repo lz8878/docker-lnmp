@@ -33,6 +33,7 @@ RUN set -eux; \
         libjpeg-turbo \
         libwebp \
         libzip \
+        postgresql-libs \
     ; \
     apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
@@ -41,12 +42,14 @@ RUN set -eux; \
         libwebp-dev \
         freetype-dev \
         libzip-dev \
+        postgresql-dev \
     ; \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp; \
     docker-php-ext-install -j$(nproc) \
         bcmath \
         gd \
         pdo_mysql \
+        pdo_pgsql \
         zip \
     ; \
     pecl install \
