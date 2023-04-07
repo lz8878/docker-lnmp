@@ -1,5 +1,7 @@
 FROM nginx:1.23-alpine
 
+COPY nginx.conf /etc/nginx/
+
 RUN set -eux; \
     sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories; \
     apk update; \
@@ -17,3 +19,5 @@ RUN set -eux; \
 	[ ! -d /wwwdata/html ]; \
 	mkdir -p /wwwdata/html; \
 	chown www-data:www-data /wwwdata/html
+
+RUN rm /etc/nginx/conf.d/default.conf
