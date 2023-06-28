@@ -1,6 +1,4 @@
-FROM php:8.1-fpm-alpine
-
-COPY php.ini "$PHP_INI_DIR/conf.d/laravel.ini"
+FROM php:8.2-cli-alpine
 
 # 更换 apk 源
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
@@ -11,6 +9,7 @@ RUN set -eux; \
     apk add --no-cache \
         git \
         shadow \
+        supervisor \
     ;
 
 # 修改 www-data 用户的 GID 和 UID
@@ -62,6 +61,13 @@ RUN set -eux; \
     apk del --no-network .build-deps; \
     rm -rf /usr/src/*
 
+RUN set -eux; \
+    mkdir -p /etc/supervisor/conf.d; \
+    mkdir -p /var/log/supervisor
+
+COPY supervisord.conf /etc/supervisor/
 COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /wwwdata/html
+WORKDIR /etc/supervisor/conf.d
+
+CMD [ "/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf" ]

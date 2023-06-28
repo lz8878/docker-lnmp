@@ -1,4 +1,4 @@
-FROM php:8.1-fpm-alpine
+FROM php:8.2-fpm-alpine
 
 COPY php.ini "$PHP_INI_DIR/conf.d/laravel.ini"
 
@@ -54,7 +54,7 @@ RUN set -eux; \
         zip \
     ; \
     pecl install \
-        redis-5.3.4 \
+        redis-5.3.7 \
     ; \
     docker-php-ext-enable \
         redis \
